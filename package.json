@@ -1,0 +1,14 @@
+{
+  "name": "ts-bccc",
+  "version": "1.0.0",
+  "description": "A Bi-Cartesian Closed Category library for TypeScript",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Dr. G. Maggiore",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^2.5.3"
+  }
+}
