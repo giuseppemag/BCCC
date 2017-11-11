@@ -1,0 +1,47 @@
+[ ] fun2, fun3
+[ ] monadicity of ccc's
+[ ] co-monadicity of ccc's
+[ ] distributive laws applied to monadic combinators such as parallel/concurrent
+[ ] fixpoint operator
+[ ] get_a, set_a can be formulated more categorically
+
+[ ] Test
+  [ ] distributivity of CCC's
+  [ ] IMP basic (non-coroutine) semantics
+    [x] Boolean algebra
+    [ ] Natural numbers
+    [ ] Relative numbers
+    [ ] Strings
+    [ ] Values as sums (of basic types)
+    [ ] Arrays
+    [ ] Tuples
+    [ ] Statements
+      [x] Variables and assignment
+      [x] Semicolon
+      [x] while
+        [ ] Point-free
+      [ ] if
+    [ ] Functions
+      [ ] Definition (as lambda's)
+      [ ] Invocation
+    [ ] Classes
+
+  [ ] IMP with interruptible semantics
+    [x] <debugger> statement
+    [ ] whole semantics must be fully categorical
+  [ ] IMP Parser to State
+  [ ] IMP Parser to Coroutine
+  [ ] IMP-REC Parser to Coroutine
+  [ ] IMP-REC_LAMBDA Parser to Coroutine
+  [ ] IMP-Typed Parser to Coroutine * CoRoutine
+  [ ] memory cells (with getter/setter?)
+
+[ ] closure of s in Option::merge is ugly and should disappear (usual trick of closure as extra dependency ignored by one of the branches)
+[ ] compilation time is too high
+  [ ] types should all become interfaces
+  [ ] annotations are needed everywhere
+[ ] less interesting distributive laws
+  [ ] a^1 = a (apply, curry)
+  [ ] a*1 = 1*a = a (fst/snd,left-/right-map x ())
+  [ ] a+0 = 0+a = a (inl/inr,left-/right-map x absurd)
+  [ ] a*a = a^2 (apply to inl/inr, curry)

@@ -1,0 +1,47 @@
+import {fun, Fun, Prod, apply, curry, id, constant, fst, snd, apply_pair} from "./ccc"
+import * as CCC from "./ccc"
+import * as Option from "./option"
+
+interface St<S,A> extends CCC.Fun<S, CCC.Prod<A,S>> {}
+export type State <S,A> = {
+  run: St<S,A>,
+  then: <B>(k: (_: A) => State <S,B>) => State <S,B>;
+  ignore: () => State<S,CCC.Unit>;
+  ignore_with: <B>(x:B) => State<S,B>;
+  map: <B>(f: CCC.Fun<A,B>) => State <S,B>
+}
+
+export let mk_state = function<S,A>(run:CCC.Fun<S, CCC.Prod<A,S>>) : State<S,A> {
+  return ({
+    run: run,
+    then: function<A,B>(this:State<S,A>, k:(_:A)=>State<S,B>) : State<S,B> {
+      return join(this.map(fun(k)))
+    },
+    ignore: function(this:State<S,A>) : State<S,CCC.Unit> {
+      return this.ignore_with<CCC.Unit>(CCC.unit().f(null))
+    },
+    ignore_with: function<B>(this:State<S,A>, y:B) : State<S,B> {
+      return this.map(constant(y))
+    },
+    map: function<B>(this:State<S,A>, f: CCC.Fun<A,B>) : State<S,B> {
+      return mk_state<S,B>(f.map_times(CCC.id<S>()).after(this.run))
+    }
+  })
+}
+
+let run = function<s,a>() : Fun<State<s,a>, St<s,a>> { return fun(p => p.run) }
+
+export let join = function<S,A>(pp:State<S,State<S,A>>) : State<S,A> {
+  let g = fst<State<S,A>,S>().then(run<S,A>()).times(snd<State<S,A>,S>()).then(apply_pair())
+  let h = run<S,State<S,A>>().map_times(id<S>()).then(apply_pair()).then(g)
+  return mk_state<S,A>(apply(curry(h), pp))
+}
+
+export let unit = function<S,A>(x:A) : State<S,A> { return mk_state<S,A>(constant<S,A>(x).times(id<S>())) }
+
+export interface Ref<s,a> { get:State<s,a>, set:(_:a)=>State<s,CCC.Unit> }
+
+export let incr : <S>(_:Ref<S, number>) => State<S,number> = x =>
+  x.get.then(x_v =>
+  x.set(x_v + 1).then(_ =>
+  x.get))

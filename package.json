@@ -1,14 +1,10 @@
 {
-  "name": "ts-bccc",
+  "name": "meta-compiler",
   "version": "1.0.0",
-  "description": "A Bi-Cartesian Closed Category library for TypeScript",
-  "main": "main.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Dr. G. Maggiore",
-  "license": "ISC",
-  "devDependencies": {
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "immutable": "^3.8.2",
     "typescript": "^2.5.3"
   }
 }
