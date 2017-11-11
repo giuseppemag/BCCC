@@ -128,10 +128,14 @@ module ImpLanguageWithSuspend {
   let True:BoolCat  = unit<Unit>().then(inr<Unit,Unit>())
   let bool_to_boolcat : Fun<Bool, BoolCat> = fun(b => b ? True : False)
 
-  type Val = string | number | Bool
+  type Name = string
+  type Val = { v:string, k:"s" } | { v:number, k:"n" } | { v:Bool, k:"b" } | { v:Mem, k:"obj" } | { v:Prod<Expr<Val>, Array<Name>>, k:"lambda" }
+  let str : (_:string) => Val = v => ({ v:v, k:"s" })
+  let int : (_:number) => Val = v => ({ v:v, k:"n" })
+  let bool : (_:boolean) => Val = v => ({ v:v, k:"b" })
   interface Err extends String { }
-  interface Mem extends Immutable.Map<string, Val> { }
-  interface Scope extends Immutable.Map<string, Co.Ref<Mem,Err,Val>> { }
+  interface Mem extends Immutable.Map<Name, Val> { }
+  // interface Scope extends Immutable.Map<Name, Co.Ref<Mem,Err,Val>> { }
   let load: Fun<Prod<string, Mem>, Val> = fun(x => x.snd.get(x.fst))
   let store: Fun<Prod<Prod<string, Val>, Mem>, Mem> = fun(x => x.snd.set(x.fst.fst, x.fst.snd))
   interface Stmt extends Coroutine<Mem, Err, Unit> {
@@ -182,7 +186,8 @@ module ImpLanguageWithSuspend {
   let run_to_end = <S,E,A>() : CCC.Fun<Prod<Coroutine<S,E,A>, S>, CCC.Sum<E,CCC.Prod<A,S>>> => {
       let f : CCC.Fun<Prod<Coroutine<S,E,A>, S>, CCC.Sum<E,CCC.Prod<A,S>>> =
           CCC.fun(p => run_to_end<S,E,A>().f(p))
-      return (Co.run<S,E,A>().map_times(fun<S,S>(s => console.log("Intermediate step:", JSON.stringify(s)) || s))).then(CCC.apply_pair<S, Co.CoPreRes<S,E,A>>()).then(
+      return (Co.run<S,E,A>().map_times(fun<S,S>(s => // console.log("Intermediate step:", JSON.stringify(s)) ||
+                s))).then(CCC.apply_pair<S, Co.CoPreRes<S,E,A>>()).then(
                 CCC.inl<E,CCC.Prod<A,S>>().plus(
                   f.plus(
                   CCC.inr<E,CCC.Prod<A,S>>())))
@@ -190,13 +195,13 @@ module ImpLanguageWithSuspend {
 
 export let test_imp = function () {
     let p =
-      set_v("s", "").semicolon(
+      set_v("s", str("")).semicolon(
       dbg.semicolon(
-      set_v("n", 1000).semicolon(
+      set_v("n", int(10)).semicolon(
       dbg.semicolon(
-      while_do(get_v("n").then(n => Co.unit(n > 0)),
-        mk_stmt(get_v("n").then(n => typeof n == "number" ? set_v("n", n - 1) : done)).semicolon(
-        mk_stmt(get_v("s").then(s => typeof s == "string" ? set_v("s", s + "*") : done)).semicolon(
+      while_do(get_v("n").then(n => Co.unit(n.v > 0)),
+        mk_stmt(get_v("n").then(n => n.k == "n" ? set_v("n", int(n.v - 1)) : done)).semicolon(
+        mk_stmt(get_v("s").then(s => s.k == "s" ? set_v("s", str(s.v + "*")) : done)).semicolon(
         dbg))
       )))))
 

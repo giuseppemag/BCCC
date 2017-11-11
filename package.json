@@ -3,8 +3,14 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "tsc": "node_modules/.bin/tsc -w",
+    "main": "node bin/main.js"
+  },
   "dependencies": {
-    "immutable": "^3.8.2",
-    "typescript": "^2.5.3"
+    "immutable": "^3.8.2"
+  },
+  "devDependencies": {
+    "typescript": "^2.6.1"
   }
 }

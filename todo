@@ -15,12 +15,13 @@
     [ ] Values as sums (of basic types)
     [ ] Arrays
     [ ] Tuples
+    [ ] Memory as actual sum
     [ ] Statements
       [x] Variables and assignment
       [x] Semicolon
       [x] while
-        [ ] Point-free
-      [ ] if
+        [ ] with fixpoint
+      [x] if
     [ ] Functions
       [ ] Definition (as lambda's)
       [ ] Invocation
