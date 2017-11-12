@@ -8,6 +8,7 @@
     "main": "node bin/main.js"
   },
   "dependencies": {
+    "@types/node": "^8.0.51",
     "immutable": "^3.8.2"
   },
   "devDependencies": {

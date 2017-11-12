@@ -136,8 +136,11 @@ module ImpLanguageWithSuspend {
   let str : (_:string) => Val = v => ({ v:v, k:"s" })
   let int : (_:number) => Val = v => ({ v:v, k:"n" })
   let bool : (_:boolean) => Val = v => ({ v:v, k:"b" })
+  let lambda : (_:Prod<Expr<Val>, Array<Name>>) => Val = l => ({ v:l, k:"lambda" })
   let unit_expr = () => mk_expr(Co.unit<Mem,Err,Val>(unt))
   let int_expr = (n:number) => mk_expr(Co.unit<Mem,Err,Val>(int(n)))
+  let lambda_expr = (l:Prod<Expr<Val>, Array<Name>>) => mk_expr(Co.unit<Mem,Err,Val>(lambda(l)))
+
   interface Err extends String { }
   interface Mem { globals:Scope, stack:Immutable.Map<number, Scope> }
   let load: Fun<Prod<string, Mem>, Val> = fun(x =>
@@ -195,6 +198,14 @@ module ImpLanguageWithSuspend {
     return mk_stmt(p.then(defun(h)))
   }
 
+  let def_fun = function(n:Name, body:Expr<Val>, args:Array<Name>) : Stmt {
+    return set_v(n, apply(constant<Unit, Expr<Val>>(body).times(constant<Unit, Array<Name>>(args)).then(fun(lambda)), {}))
+  }
+
+  let call_by_name = function(f_n:Name, args:Array<Prod<Name,Expr<Val>>>) : Expr<Val> {
+    return mk_expr(get_v(f_n).then(f => f.k == "lambda" ? call_lambda(f.v.fst, args) : undefined))
+  }
+
   let call_lambda = function(body:Expr<Val>, args:Array<Prod<Name,Expr<Val>>>) : Expr<Val> {
     let set_args = args.reduce<Stmt>((sets, arg_expr) =>
       mk_stmt(arg_expr.snd.then(arg_v => set_v(arg_expr.fst, arg_v).as_coroutine())).semicolon(sets),
@@ -220,7 +231,7 @@ module ImpLanguageWithSuspend {
 export let test_imp = function () {
     let loop_test =
       set_v("s", str("")).semicolon(
-      set_v("n", int(10)).semicolon(
+      set_v("n", int(1000)).semicolon(
       while_do(mk_expr(get_v("n").then(n => Co.unit(n.v > 0))),
         mk_stmt(get_v("n").then(n => n.k == "n" ? set_v("n", int(n.v - 1)) : done)).semicolon(
         mk_stmt(get_v("s").then(s => s.k == "s" ? set_v("s", str(s.v + "*")) : done)).semicolon(
@@ -232,13 +243,24 @@ export let test_imp = function () {
       mk_stmt(call_lambda(
         mk_expr(dbg.then(_ => int_expr(1))),
         [{ fst:"n", snd:int_expr(5)}]).then(res =>
-      console.log("Function returned with res", res) || dbg
+      dbg
       )))
 
-    let p = scope_test
+    let fun_test =
+      def_fun("f", mk_expr(dbg.then(_ => int_expr(1))), []).semicolon(
+      def_fun("g", mk_expr(dbg.then(_ => int_expr(2))), []).semicolon(
+      mk_stmt(call_by_name("g", []).then(v =>
+      dbg.semicolon(
+      set_v("n", v)
+      )))))
+
+    let hrstart = process.hrtime()
+    let p = fun_test
 
     let res = apply((constant<Unit,Stmt>(p).times(constant<Unit,Mem>(empty_memory))).then(run_to_end()), {})
-    console.log(JSON.stringify(res))
+    let hrdiff = process.hrtime(hrstart)
+    let time_in_ns = hrdiff[0] * 1e9 + hrdiff[1]
+    console.log(`Timer: ${time_in_ns / 1000000}ms\n Result: `, JSON.stringify(res))
   }
 }
 

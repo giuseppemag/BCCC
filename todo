@@ -16,6 +16,8 @@
     [ ] Tuples
     [ ] Statements
       [x] Variables and assignment
+        [ ] set_v should become set_const
+        [ ] set_v should accept an Expr<Val> as argument
       [x] Semicolon
       [x] while
         [ ] with fixpoint
@@ -24,7 +26,11 @@
     [ ] Functions
       [ ] Definition (as lambda's)
       [x] Invocation
-      [ ] Returning
+      [x] Returning
+      [ ] Store in definitions
+    [ ] errors
+      [ ] wherever type assertion fails, instead of done
+    [ ] data-oriented memory: ints, floats, strings, ..., each an array for faster lookup
     [ ] Classes
 
   [ ] IMP with interruptible semantics

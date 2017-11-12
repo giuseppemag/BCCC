@@ -9,7 +9,8 @@
         "module": "commonjs",
         "target": "es5",
         "jsx": "react",
-        "lib": ["es2015", "dom"]
+        "lib": ["es2015", "dom"],
+        "allowJs": true
     },
     "include": [
       "./*.ts"
