@@ -1,12 +1,10 @@
 [ ] fun2, fun3
 [ ] monadicity of ccc's
-[ ] co-monadicity of ccc's
 [ ] distributive laws applied to monadic combinators such as parallel/concurrent
 [ ] fixpoint operator
 [ ] get_a, set_a can be formulated more categorically
 
 [ ] Test
-  [ ] distributivity of CCC's
   [ ] IMP basic (non-coroutine) semantics
     [x] Boolean algebra
     [ ] Natural numbers
@@ -22,19 +20,32 @@
       [x] while
         [ ] with fixpoint
       [x] if
+      [x] <Debugger> statement
       [ ] Printing (stored in state *and* shown to screen)
     [ ] Functions
-      [ ] Definition (as lambda's)
+      [x] Definition (as lambda's)
       [x] Invocation
       [x] Returning
-      [ ] Store in definitions
+      [ ] def stores lambda in definitions, not globals
+      [ ] arguments must be bound in-order, not by-name
     [ ] errors
       [ ] wherever type assertion fails, instead of done
+      [ ] check that the number of arguments passed to a lambda is correct
     [ ] data-oriented memory: ints, floats, strings, ..., each an array for faster lookup
     [ ] Classes
-
+      [/] definition
+      [/] constructor
+      [/] heap storage
+      [/] method call: this_addr->this->C_name->heap->C_def[M_name]
+      [/] field get
+      [/] field set
+      [ ] properties (as methods)
+        [ ] get
+        [ ] set
+      [ ] inheritance
+    [ ] Multiple files and separate repo for language
+    [ ] Garbage collection (and `heap_alloc` fills in the gaps)
   [ ] IMP with interruptible semantics
-    [x] <debugger> statement
     [ ] whole semantics must be fully categorical
   [ ] IMP Parser to State
   [ ] IMP Parser to Coroutine
@@ -44,9 +55,8 @@
   [ ] memory cells (with getter/setter?)
 
 [ ] closure of s in Option::merge is ugly and should disappear (usual trick of closure as extra dependency ignored by one of the branches)
-[ ] compilation time is too high
-  [ ] types should all become interfaces
-  [ ] annotations are needed everywhere
+[ ] inference is sluggish in VSCode
+  [ ] split into precompiled JS libraries with .d.ts files
 [ ] less interesting distributive laws
   [ ] a^1 = a (apply, curry)
   [ ] a*1 = 1*a = a (fst/snd,left-/right-map x ())
@@ -54,3 +64,4 @@
   [ ] a*a = a^2 (apply to inl/inr, curry)
 [ ] Memory values as sums (of basic types)
 [ ] Memory operations as actual sums
+[ ] Test distributivity of CCC's
