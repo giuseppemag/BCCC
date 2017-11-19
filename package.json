@@ -1,5 +1,5 @@
 {
-  "name": "meta-compiler",
+  "name": "ts-bccc",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
@@ -13,5 +13,9 @@
   },
   "devDependencies": {
     "typescript": "^2.6.1"
+  },
+  "author": {
+    "name": "Dr. Giuseppe Maggiore",
+    "email": "giuseppemag@gmail.com"
   }
 }
