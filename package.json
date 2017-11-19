@@ -1,7 +1,7 @@
 {
   "name": "ts-bccc",
-  "version": "1.0.1",
-  "main": "index.js",
+  "version": "1.0.2",
+  "main": "./dist/main.js",
   "license": "MIT",
   "scripts": {
     "tsc": "cd src && ../node_modules/.bin/tsc -w",
