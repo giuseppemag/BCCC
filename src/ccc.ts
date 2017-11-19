@@ -3,7 +3,7 @@ export let id = function<a>() : Fun<a,a> { return fun(x => x) }
 export let constant = <c,a>(a:a) : Fun<c,a> => fun(x => a)
 
 export type Zero = never
-export let absurd = <a>() : Fun<Zero,a> => fun(_ => { throw "Does not exist." })
+export let absurd = <a>() : Fun<Zero,a> => fun<Zero,a>(_ => { throw "Does not exist." })
 
 export interface Unit {}
 export let unit = <a>() : Fun<a,Unit> => fun(x => ({}))
@@ -76,7 +76,7 @@ export let distribute_sum_prod = function<a,b,c>() : Fun<Prod<a, Sum<b,c>>, Sum<
   return id<a>().map_times(
     curry(inl<Prod<a,b>, Prod<a,c>>().after(snd<b, a>().times(fst<b, a>()))).plus(
     curry(inr<Prod<a,b>, Prod<a,c>>().after(snd<c, a>().times(fst<c, a>()))))
-  ).then(swap_prod().then(apply_pair<a, Sum<Prod<a,b>,Prod<a,c>>>()))
+  ).then(apply_pair<a, Sum<Prod<a,b>,Prod<a,c>>>().after(swap_prod()))
 }
 
 export let distribute_sum_prod_inv = function<a,b,c>() : Fun<Sum<Prod<a,b>, Prod<a,c>>, Prod<a, Sum<b,c>>> {
@@ -149,8 +149,8 @@ let map_times_left = function<a,b,c>() : Fun<Fun<a,b>, Fun<Prod<a,c>, Prod<b,c>>
 export let map_times_right = function<a,b,c>() : Fun<Fun<a,b>, Fun<Prod<c,a>, Prod<c,b>>> {
   let f = fst<Fun<a,b>, Prod<c,a>>().times(snd<Fun<a,b>, Prod<c,a>>().then(snd())).then(apply_pair())
   let g = snd<Fun<a,b>, Prod<c,a>>().then(fst())
-  let h = (f.times(g))
-  return undefined
+  let h = (g.times(f))
+  return curry(h)
 }
 
 // _+c

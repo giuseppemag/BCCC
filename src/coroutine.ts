@@ -32,7 +32,7 @@ export let mk_coroutine = function<S,E,A>(run:Co<S,E,A>) : Coroutine<S,E,A> {
       return CCC.apply(h, this)
     },
     ignore: function(this:Coroutine<S,E,A>) : Coroutine<S,E,CCC.Unit> {
-      return this.ignore_with<CCC.Unit>(CCC.unit().f(null))
+      return this.ignore_with<CCC.Unit>(CCC.unit().f({}))
     },
     ignore_with: function<B>(this:Coroutine<S,E,A>, y:B) : Coroutine<S,E,B> {
       let f = curry(snd<Coroutine<S,E,A>,A>().then(constant<A,B>(y)))
@@ -85,7 +85,11 @@ let unit_fun = function<S,E,A>() : CCC.Fun<A,Coroutine<S,E,A>> { return CCC.fun(
 
 export let suspend = function<S,E>() : Coroutine<S,E,CCC.Unit> {
   return mk_coroutine<S,E,CCC.Unit>(
-    no_error<S,E,CCC.Unit>().after(continuation<S,E,CCC.Unit>().after(unit_fun<S, E, CCC.Unit>().after(CCC.unit<S>().times(id<S>())).times(id<S>())))) }
+    no_error<S,E,CCC.Unit>().after(
+      continuation<S,E,CCC.Unit>().after(
+        unit_fun<S, E, CCC.Unit>().after(
+          CCC.unit<S>()
+        ).times(id<S>())))) }
 
 export type CoRef<s,e,a> = { get:Coroutine<s,e,a>, set:(_:a)=>Coroutine<s,e,CCC.Unit> }
 

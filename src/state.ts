@@ -18,7 +18,7 @@ export let mk_state = function<S,A>(run:CCC.Fun<S, CCC.Prod<A,S>>) : State<S,A> 
       return st_join(this.map(fun(k)))
     },
     ignore: function(this:State<S,A>) : State<S,CCC.Unit> {
-      return this.ignore_with<CCC.Unit>(CCC.unit().f(null))
+      return this.ignore_with<CCC.Unit>(CCC.unit().f({}))
     },
     ignore_with: function<B>(this:State<S,A>, y:B) : State<S,B> {
       return this.map(constant(y))
