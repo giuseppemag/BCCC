@@ -2,6 +2,10 @@
   "name": "ts-bccc",
   "version": "1.0.2",
   "main": "./dist/main.js",
+  "typings": "dist/main.d.ts",
+  "typescript": {
+    "definition": "dist/main.d.ts"
+  },
   "license": "MIT",
   "scripts": {
     "tsc": "cd src && ../node_modules/.bin/tsc -w",
