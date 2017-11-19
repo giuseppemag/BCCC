@@ -34,25 +34,22 @@ var map_fun = function () { return ccc_1.fun(function (p) { return p.fst.map(p.s
 exports.from_state = function (p) {
     return exports.mk_coroutine(p.run.then(exports.result().then(exports.no_error())));
 };
-exports.run = function () { return ccc_1.fun(function (p) { return p.run; }); };
-var join_fun = function () { return ccc_1.fun(function (c) { return exports.join(c); }); };
-exports.join = function (pp) {
+exports.co_run = function () { return ccc_1.fun(function (p) { return p.run; }); };
+var join_fun = function () { return ccc_1.fun(function (c) { return exports.co_join(c); }); };
+exports.co_join = function (pp) {
     var f = exports.error().plus(ccc_1.fst().then(join_fun()).times(ccc_1.snd()).then(exports.continuation().then(exports.no_error())).plus(ccc_1.fun(function (prv) { return CCC.apply(prv.fst.run.then(exports.error().plus(exports.no_error().after(exports.continuation()).plus(exports.no_error().after(exports.result())))), prv.snd); })));
-    var g = ccc_1.apply(ccc_1.curry(exports.run().map_times(ccc_1.id()).then(ccc_1.apply_pair()).then(f)), pp);
+    var g = ccc_1.apply(ccc_1.curry(exports.co_run().map_times(ccc_1.id()).then(ccc_1.apply_pair()).then(f)), pp);
     return exports.mk_coroutine(g);
 };
-exports.unit = function (x) {
+exports.co_unit = function (x) {
     return exports.mk_coroutine(exports.no_error().after(exports.result()).after(ccc_1.constant(x).times(ccc_1.id())));
 };
-var unit_fun = function () { return CCC.fun(function (x) { return exports.unit(x); }); };
+var unit_fun = function () { return CCC.fun(function (x) { return exports.co_unit(x); }); };
 exports.suspend = function () {
     return exports.mk_coroutine(exports.no_error().after(exports.continuation().after(unit_fun().after(CCC.unit().times(ccc_1.id())).times(ccc_1.id()))));
 };
-exports.incr = function (x) {
-    return x.get.then(function (x_v) {
-        return x.set(x_v + 1).then(function (_) {
-            return x.get;
-        });
-    });
-};
+// export let incr : <s,e>(_:CoRef<s, e, number>) => Coroutine<s,e,number> = x =>
+//   x.get.then(x_v =>
+//   x.set(x_v + 1).then(_ =>
+//   x.get))
 //# sourceMappingURL=coroutine.js.map

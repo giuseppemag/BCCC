@@ -56,11 +56,11 @@ export let from_state = function<s,e,a>(p:State.State<s,a>) : Coroutine<s,e,a> {
   return mk_coroutine(p.run.then(result<s,e,a>().then(no_error<s,e,a>())))
 }
 
-export let run = function<s,e,a>() : CCC.Fun<Coroutine<s,e,a>, Co<s,e,a>> { return fun(p => p.run) }
+export let co_run = function<s,e,a>() : CCC.Fun<Coroutine<s,e,a>, Co<s,e,a>> { return fun(p => p.run) }
 
-let join_fun = function<S,E,A>() { return fun<Coroutine<S,E,Coroutine<S,E,A>>, Coroutine<S,E,A>>(c => join<S,E,A>(c)) }
+let join_fun = function<S,E,A>() { return fun<Coroutine<S,E,Coroutine<S,E,A>>, Coroutine<S,E,A>>(c => co_join<S,E,A>(c)) }
 
-export let join = function<S,E,A>(pp:Coroutine<S,E,Coroutine<S,E,A>>) : Coroutine<S,E,A> {
+export let co_join = function<S,E,A>(pp:Coroutine<S,E,Coroutine<S,E,A>>) : Coroutine<S,E,A> {
   let f : Fun<CoPreRes<S,E,Coroutine<S,E,A>>,CoPreRes<S,E,A>> = error<S,E,A>().plus(
     fst<Coroutine<S,E,Coroutine<S,E,A>>,S>().then(join_fun()).times(snd<Coroutine<S,E,Coroutine<S,E,A>>,S>()).then(
         continuation<S,E,A>().then(
@@ -74,22 +74,22 @@ export let join = function<S,E,A>(pp:Coroutine<S,E,Coroutine<S,E,A>>) : Coroutin
         prv.snd)
     ))
   )
-  let g = apply(curry(run<S,E,Coroutine<S,E,A>>().map_times(id<S>()).then(apply_pair()).then(f)), pp)
+  let g = apply(curry(co_run<S,E,Coroutine<S,E,A>>().map_times(id<S>()).then(apply_pair()).then(f)), pp)
   return mk_coroutine<S,E,A>(g)
 }
 
-export let unit = function<S,E,A>(x:A) : Coroutine<S,E,A> { return mk_coroutine<S,E,A>(
+export let co_unit = function<S,E,A>(x:A) : Coroutine<S,E,A> { return mk_coroutine<S,E,A>(
   no_error<S,E,A>().after(result<S,E,A>()).after(constant<S,A>(x).times(id<S>()))) }
 
-let unit_fun = function<S,E,A>() : CCC.Fun<A,Coroutine<S,E,A>> { return CCC.fun(x => unit<S,E,A>(x)) }
+let unit_fun = function<S,E,A>() : CCC.Fun<A,Coroutine<S,E,A>> { return CCC.fun(x => co_unit<S,E,A>(x)) }
 
 export let suspend = function<S,E>() : Coroutine<S,E,CCC.Unit> {
   return mk_coroutine<S,E,CCC.Unit>(
     no_error<S,E,CCC.Unit>().after(continuation<S,E,CCC.Unit>().after(unit_fun<S, E, CCC.Unit>().after(CCC.unit<S>().times(id<S>())).times(id<S>())))) }
 
-export type Ref<s,e,a> = { get:Coroutine<s,e,a>, set:(_:a)=>Coroutine<s,e,CCC.Unit> }
+export type CoRef<s,e,a> = { get:Coroutine<s,e,a>, set:(_:a)=>Coroutine<s,e,CCC.Unit> }
 
-export let incr : <s,e>(_:Ref<s, e, number>) => Coroutine<s,e,number> = x =>
-  x.get.then(x_v =>
-  x.set(x_v + 1).then(_ =>
-  x.get))
+// export let incr : <s,e>(_:CoRef<s, e, number>) => Coroutine<s,e,number> = x =>
+//   x.get.then(x_v =>
+//   x.set(x_v + 1).then(_ =>
+//   x.get))

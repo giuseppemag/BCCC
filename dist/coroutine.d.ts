@@ -20,12 +20,11 @@ export interface Coroutine<S, E, A> {
 }
 export declare let mk_coroutine: <S, E, A>(run: Fun<S, Sum<E, Sum<Prod<Coroutine<S, E, A>, S>, Prod<A, S>>>>) => Coroutine<S, E, A>;
 export declare let from_state: <s, e, a>(p: State.State<s, a>) => Coroutine<s, e, a>;
-export declare let run: <s, e, a>() => Fun<Coroutine<s, e, a>, Fun<s, Sum<e, Sum<Prod<Coroutine<s, e, a>, s>, Prod<a, s>>>>>;
-export declare let join: <S, E, A>(pp: Coroutine<S, E, Coroutine<S, E, A>>) => Coroutine<S, E, A>;
-export declare let unit: <S, E, A>(x: A) => Coroutine<S, E, A>;
+export declare let co_run: <s, e, a>() => Fun<Coroutine<s, e, a>, Fun<s, Sum<e, Sum<Prod<Coroutine<s, e, a>, s>, Prod<a, s>>>>>;
+export declare let co_join: <S, E, A>(pp: Coroutine<S, E, Coroutine<S, E, A>>) => Coroutine<S, E, A>;
+export declare let co_unit: <S, E, A>(x: A) => Coroutine<S, E, A>;
 export declare let suspend: <S, E>() => Coroutine<S, E, CCC.Unit>;
-export declare type Ref<s, e, a> = {
+export declare type CoRef<s, e, a> = {
     get: Coroutine<s, e, a>;
     set: (_: a) => Coroutine<s, e, CCC.Unit>;
 };
-export declare let incr: <s, e>(_: Ref<s, e, number>) => Coroutine<s, e, number>;
