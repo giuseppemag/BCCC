@@ -348,10 +348,13 @@ export let test_imp = function () {
                 x_val.k != "n" ? unit_expr() :
                 field_get("y", this_addr).then(y_val =>
                 y_val.k != "n" ? unit_expr() :
+                dbg.then(_ =>
                 field_set("x", val_expr(int(x_val.v * k_val.v)), this_addr).then(_ =>
+                dbg.then(_ =>
                 field_set("y", val_expr(int(y_val.v * k_val.v)), this_addr).then(_ =>
+                dbg.then(_ =>
                 unit_expr()
-                ))))))),
+                )))))))))),
             snd:["k", "this"] } ],
          [ "constructor",
           { fst:mk_expr(get_v("this").then(this_addr =>

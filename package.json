@@ -4,8 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "tsc": "node_modules/.bin/tsc -w",
-    "main": "node bin/main.js"
+    "tsc": "cd src && ../node_modules/.bin/tsc -w",
+    "main": "node dist/main.js"
   },
   "dependencies": {
     "@types/node": "^8.0.51",
