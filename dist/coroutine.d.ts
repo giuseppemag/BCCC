@@ -23,6 +23,7 @@ export declare let from_state: <s, e, a>(p: State.State<s, a>) => Coroutine<s, e
 export declare let co_run: <s, e, a>() => Fun<Coroutine<s, e, a>, Fun<s, Sum<e, Sum<Prod<Coroutine<s, e, a>, s>, Prod<a, s>>>>>;
 export declare let co_join: <S, E, A>(pp: Coroutine<S, E, Coroutine<S, E, A>>) => Coroutine<S, E, A>;
 export declare let co_unit: <S, E, A>(x: A) => Coroutine<S, E, A>;
+export declare let co_error: <S, E, A>(e: E) => Coroutine<S, E, A>;
 export declare let suspend: <S, E>() => Coroutine<S, E, CCC.Unit>;
 export declare type CoRef<s, e, a> = {
     get: Coroutine<s, e, a>;

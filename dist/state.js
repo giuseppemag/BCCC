@@ -9,7 +9,7 @@ exports.mk_state = function (run) {
             return exports.st_join(this.map(ccc_1.fun(k)));
         },
         ignore: function () {
-            return this.ignore_with(CCC.unit().f(null));
+            return this.ignore_with(CCC.unit().f({}));
         },
         ignore_with: function (y) {
             return this.map(ccc_1.constant(y));
@@ -30,4 +30,3 @@ exports.st_unit = function (x) { return exports.mk_state(ccc_1.constant(x).times
 //   x.get.then(x_v =>
 //   x.set(x_v + 1).then(_ =>
 //   x.get))
-//# sourceMappingURL=state.js.map

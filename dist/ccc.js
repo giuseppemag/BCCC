@@ -43,7 +43,7 @@ exports.inl = function () { return exports.fun(function (x) { return ({ kind: "l
 exports.inr = function () { return exports.fun(function (x) { return ({ kind: "right", value: x }); }); };
 // a * (b+c) = a*b + a*c
 exports.distribute_sum_prod = function () {
-    return exports.id().map_times(exports.curry(exports.inl().after(exports.snd().times(exports.fst()))).plus(exports.curry(exports.inr().after(exports.snd().times(exports.fst()))))).then(exports.swap_prod().then(exports.apply_pair()));
+    return exports.id().map_times(exports.curry(exports.inl().after(exports.snd().times(exports.fst()))).plus(exports.curry(exports.inr().after(exports.snd().times(exports.fst()))))).then(exports.apply_pair().after(exports.swap_prod()));
 };
 exports.distribute_sum_prod_inv = function () {
     return exports.fst().times(exports.inl().after(exports.snd())).plus(exports.fst().times(exports.inr().after(exports.snd())));
@@ -96,8 +96,8 @@ var map_times_left = function () {
 exports.map_times_right = function () {
     var f = exports.fst().times(exports.snd().then(exports.snd())).then(exports.apply_pair());
     var g = exports.snd().then(exports.fst());
-    var h = (f.times(g));
-    return undefined;
+    var h = (g.times(f));
+    return exports.curry(h);
 };
 // _+c
 exports.map_sum_left = function () {
@@ -123,4 +123,3 @@ exports.compose_pair = function () {
     var g = exports.fst().then(exports.snd());
     return exports.curry(g.times(f).then(exports.apply_pair()));
 };
-//# sourceMappingURL=ccc.js.map

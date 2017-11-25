@@ -17,7 +17,7 @@ exports.mk_coroutine = function (run) {
             return CCC.apply(h, this);
         },
         ignore: function () {
-            return this.ignore_with(CCC.unit().f(null));
+            return this.ignore_with(CCC.unit().f({}));
         },
         ignore_with: function (y) {
             var f = ccc_1.curry(ccc_1.snd().then(ccc_1.constant(y)));
@@ -45,11 +45,13 @@ exports.co_unit = function (x) {
     return exports.mk_coroutine(exports.no_error().after(exports.result()).after(ccc_1.constant(x).times(ccc_1.id())));
 };
 var unit_fun = function () { return CCC.fun(function (x) { return exports.co_unit(x); }); };
+exports.co_error = function (e) {
+    return exports.mk_coroutine(ccc_1.constant(e).then(exports.error()));
+};
 exports.suspend = function () {
-    return exports.mk_coroutine(exports.no_error().after(exports.continuation().after(unit_fun().after(CCC.unit().times(ccc_1.id())).times(ccc_1.id()))));
+    return exports.mk_coroutine(exports.no_error().after(exports.continuation().after(unit_fun().after(CCC.unit()).times(ccc_1.id()))));
 };
 // export let incr : <s,e>(_:CoRef<s, e, number>) => Coroutine<s,e,number> = x =>
 //   x.get.then(x_v =>
 //   x.set(x_v + 1).then(_ =>
 //   x.get))
-//# sourceMappingURL=coroutine.js.map

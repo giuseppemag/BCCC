@@ -1,6 +1,6 @@
 {
   "name": "ts-bccc",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "main": "./dist/main.js",
   "typings": "dist/main.d.ts",
   "typescript": {

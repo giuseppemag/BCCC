@@ -4,7 +4,5 @@ function __export(m) {
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 __export(require("./ccc"));
-__export(require("./option"));
 __export(require("./state"));
 __export(require("./coroutine"));
-//# sourceMappingURL=main.js.map
