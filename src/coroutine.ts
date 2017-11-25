@@ -83,6 +83,10 @@ export let co_unit = function<S,E,A>(x:A) : Coroutine<S,E,A> { return mk_corouti
 
 let unit_fun = function<S,E,A>() : CCC.Fun<A,Coroutine<S,E,A>> { return CCC.fun(x => co_unit<S,E,A>(x)) }
 
+export let co_error = function<S,E,A>(e:E) : Coroutine<S,E,A> { return mk_coroutine<S,E,A>(
+  constant<S,E>(e).then(error<S,E,A>()))
+}
+
 export let suspend = function<S,E>() : Coroutine<S,E,CCC.Unit> {
   return mk_coroutine<S,E,CCC.Unit>(
     no_error<S,E,CCC.Unit>().after(

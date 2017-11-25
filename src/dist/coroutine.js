@@ -45,6 +45,9 @@ exports.co_unit = function (x) {
     return exports.mk_coroutine(exports.no_error().after(exports.result()).after(ccc_1.constant(x).times(ccc_1.id())));
 };
 var unit_fun = function () { return CCC.fun(function (x) { return exports.co_unit(x); }); };
+exports.co_error = function (e) {
+    return exports.mk_coroutine(ccc_1.constant(e).then(exports.error()));
+};
 exports.suspend = function () {
     return exports.mk_coroutine(exports.no_error().after(exports.continuation().after(unit_fun().after(CCC.unit()).times(ccc_1.id()))));
 };
