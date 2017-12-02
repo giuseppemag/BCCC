@@ -1,0 +1,10 @@
+[ ] closure of s in Option::merge is ugly and should disappear (usual trick of closure as extra dependency ignored by one of the branches)
+[ ] less interesting distributive laws
+  [ ] a^1 = a (apply, curry)
+  [ ] a*1 = 1*a = a (fst/snd,left-/right-map x ())
+  [ ] a+0 = 0+a = a (inl/inr,left-/right-map x absurd)
+  [ ] a*a = a^2 (apply to inl/inr, curry)
+[ ] fun2, fun3
+[ ] monads based on various ccc's
+[ ] fixpoint operator
+
