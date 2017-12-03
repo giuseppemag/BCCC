@@ -226,3 +226,12 @@ export let prod_from_fun = function<a>() : Fun<Fun<Sum<Unit,Unit>,a>, Prod<a,a>>
   let f2 = id<Fun<Sum<Unit,Unit>,a>>().times(unit<Fun<Sum<Unit,Unit>,a>>().then(inr<Unit,Unit>())).then(apply_pair())
   return f1.times(f2)
 }
+
+// a*0 = 0
+export let times_zero = function<a>() : Fun<Prod<a,Zero>,Zero> {
+  return snd<a,Zero>()
+}
+
+export let times_zero_inv = function<a>() : Fun<Zero,Prod<a,Zero>> {
+  return absurd<a>().times(id<Zero>())
+}

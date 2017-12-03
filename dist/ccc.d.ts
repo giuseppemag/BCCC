@@ -72,3 +72,5 @@ export declare let plus_cat: <a, b, c>() => Fun<Prod<Fun<a, c>, Fun<b, c>>, Fun<
 export declare let plus_par_cat: <a, b, c, d>() => Fun<Prod<Fun<a, c>, Fun<b, d>>, Fun<Sum<a, b>, Sum<c, d>>>;
 export declare let prod_to_fun: <a>() => Fun<Prod<a, a>, Fun<Sum<Unit, Unit>, a>>;
 export declare let prod_from_fun: <a>() => Fun<Fun<Sum<Unit, Unit>, a>, Prod<a, a>>;
+export declare let times_zero: <a>() => Fun<Prod<a, never>, never>;
+export declare let times_zero_inv: <a>() => Fun<never, Prod<a, never>>;

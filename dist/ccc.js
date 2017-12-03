@@ -163,3 +163,10 @@ exports.prod_from_fun = function () {
     var f2 = exports.id().times(exports.unit().then(exports.inr())).then(exports.apply_pair());
     return f1.times(f2);
 };
+// a*0 = 0
+exports.times_zero = function () {
+    return exports.snd();
+};
+exports.times_zero_inv = function () {
+    return exports.absurd().times(exports.id());
+};
