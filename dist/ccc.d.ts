@@ -31,6 +31,8 @@ export interface Fun<a, b> {
 }
 export declare let fun: <a, b>(f: (_: a) => b) => Fun<a, b>;
 export declare let defun: <a, b>(f: Fun<a, b>) => (_: a) => b;
+export declare let fun2: <a, b, c>(f: (x: a, y: b) => c) => Fun<Prod<a, b>, c>;
+export declare let fun3: <a, b, c, d>(f: (x: a, y: b, z: c) => d) => Fun<Prod<a, Prod<b, c>>, d>;
 export declare let apply: <a, b>(f: Fun<a, b>, x: a) => b;
 export declare let apply_pair: <a, b>() => Fun<Prod<Fun<a, b>, a>, b>;
 export declare let curry: <a, b, c>(f: Fun<Prod<a, b>, c>) => Fun<a, Fun<b, c>>;
@@ -60,3 +62,13 @@ export declare let map_sum_left: <a, b, c>() => Fun<Fun<a, b>, Fun<Sum<a, c>, Su
 export declare let map_sum_right: <a, b, c>() => Fun<Fun<a, b>, Fun<Sum<c, a>, Sum<c, b>>>;
 export declare let lazy: <a, b>(x: Fun<a, b>) => Fun<Unit, Fun<a, b>>;
 export declare let compose_pair: <a, b, c>() => Fun<Prod<Fun<a, b>, Fun<b, c>>, Fun<a, c>>;
+export declare let lazy_value: <a>() => Fun<a, Fun<Unit, a>>;
+export declare let eager_value: <a>() => Fun<Fun<Unit, a>, a>;
+export declare let product_identity: <a>() => Fun<Prod<a, Unit>, a>;
+export declare let product_identity_inv: <a>() => Fun<a, Prod<a, Unit>>;
+export declare let sum_identity: <a>() => Fun<Sum<a, never>, a>;
+export declare let sum_identity_inv: <a>() => Fun<a, Sum<a, never>>;
+export declare let plus_cat: <a, b, c>() => Fun<Prod<Fun<a, c>, Fun<b, c>>, Fun<Sum<a, b>, c>>;
+export declare let plus_par_cat: <a, b, c, d>() => Fun<Prod<Fun<a, c>, Fun<b, d>>, Fun<Sum<a, b>, Sum<c, d>>>;
+export declare let prod_to_fun: <a>() => Fun<Prod<a, a>, Fun<Sum<Unit, Unit>, a>>;
+export declare let prod_from_fun: <a>() => Fun<Fun<Sum<Unit, Unit>, a>, Prod<a, a>>;

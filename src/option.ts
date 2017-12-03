@@ -1,4 +1,3 @@
-import * as Immutable from 'immutable'
 import * as CCC from './ccc'
 
 export type Option<A> = CCC.Sum<A, CCC.Unit>

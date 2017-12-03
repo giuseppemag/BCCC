@@ -29,6 +29,8 @@ exports.fun = function (f) { return ({
     map_sum_right: function () { return exports.apply(exports.map_sum_right(), this); },
 }); };
 exports.defun = function (f) { return f.f; };
+exports.fun2 = function (f) { return exports.fun(function (ab) { return f(ab.fst, ab.snd); }); };
+exports.fun3 = function (f) { return exports.fun(function (abc) { return f(abc.fst, abc.snd.fst, abc.snd.snd); }); };
 exports.apply = function (f, x) { return f.f(x); };
 exports.apply_pair = function () { return exports.fun(function (p) { return p.fst.f(p.snd); }); };
 exports.curry = function (f) { return exports.fun(function (a) { return exports.fun(function (b) { return f.f({ fst: a, snd: b }); }); }); };
@@ -115,11 +117,49 @@ exports.map_sum_right = function () {
     var i = h.map_plus(g);
     return exports.curry(f.then(i));
 };
-// _^c is not needed: it is f.then
-// c^_ is not needed: it is f.after
 exports.lazy = function (x) { return exports.curry((exports.id().map_times(x)).then(exports.snd())); };
 exports.compose_pair = function () {
     var f = exports.fst().map_times(exports.id()).then(exports.apply_pair());
     var g = exports.fst().then(exports.snd());
     return exports.curry(g.times(f).then(exports.apply_pair()));
+};
+// a = a^1
+exports.lazy_value = function () {
+    return exports.curry(exports.fst());
+};
+// a^1 = a
+exports.eager_value = function () {
+    return exports.id().times(exports.unit()).then(exports.apply_pair());
+};
+// a*1 = a
+exports.product_identity = function () {
+    return exports.fst();
+};
+// a = a*1
+exports.product_identity_inv = function () {
+    return exports.id().times(exports.unit());
+};
+// a+0 = a
+exports.sum_identity = function () {
+    return exports.id().plus(exports.absurd());
+};
+// a = a+0
+exports.sum_identity_inv = function () {
+    return exports.inl();
+};
+exports.plus_cat = function () {
+    return exports.fun2(function (f, g) { return f.plus(g); });
+};
+exports.plus_par_cat = function () {
+    return exports.fun2(function (f, g) { return f.map_plus(g); });
+};
+// a*a = a^2
+exports.prod_to_fun = function () {
+    return exports.lazy_value().map_times(exports.lazy_value()).then(exports.plus_cat());
+};
+// a^2 = a*a
+exports.prod_from_fun = function () {
+    var f1 = exports.id().times(exports.unit().then(exports.inl())).then(exports.apply_pair());
+    var f2 = exports.id().times(exports.unit().then(exports.inr())).then(exports.apply_pair());
+    return f1.times(f2);
 };

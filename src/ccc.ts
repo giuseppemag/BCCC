@@ -16,10 +16,6 @@ export interface Prod<a,b> { fst:a, snd:b }
 // export let mk_pair = <a,b>(x:a) : (y:b) => Prod<a,b> => y => ({ fst:x, snd:y })
 let times = <c,a,b>(f:(_:c) => a, g:(_:c) => b) => (x:c) : Prod<a,b> => ({ fst:f(x), snd:g(x) })
 let times_par = <a,b,c,d>(f:(_:a) => c, g:(_:b) => d) => (x:Prod<a,b>) : Prod<c,d> => ({ fst:f(x.fst), snd:g(x.snd) })
-// let times_par_pair = function<a,b,c,d>() : Fun<Prod<Fun<a,c>, Fun<b,d>>,Fun<Prod<a,b>,Prod<c,d>>> {
-// PLACEHOLDER TO BE IMPLEMENTED AT A LATER TIME
-//   return undefined
-// }
 
 export interface Fun<a,b> {
   f:(_:a) => b
@@ -49,6 +45,9 @@ export let fun = <a,b>(f:(_:a) => b) : Fun<a,b> => ({
     map_sum_right: function<c>(this:Fun<a,b>) : Fun<Sum<c,a>, Sum<c,b>> { return apply(map_sum_right<a,b,c>(), this) },
   })
 export let defun = <a,b>(f:Fun<a,b>) : ((_:a) => b) => f.f
+
+export let fun2 = <a,b,c>(f:(x:a,y:b) => c) : Fun<Prod<a,b>,c> => fun(ab => f(ab.fst, ab.snd))
+export let fun3 = <a,b,c,d>(f:(x:a,y:b,z:c) => d) : Fun<Prod<a,Prod<b,c>>,d> => fun(abc => f(abc.fst, abc.snd.fst, abc.snd.snd))
 
 export let apply = <a,b>(f:Fun<a,b>, x:a) : b => f.f(x)
 export let apply_pair = function<a,b>() : Fun<Prod<Fun<a,b>, a>,b> { return fun(p => p.fst.f(p.snd)) }
@@ -170,13 +169,60 @@ export let map_sum_right = function<a,b,c>() : Fun<Fun<a,b>, Fun<Sum<c,a>, Sum<c
   return curry(f.then(i))
 }
 
-// _^c is not needed: it is f.then
-// c^_ is not needed: it is f.after
-
 export let lazy = function<a,b>(x:Fun<a,b>) : Fun<Unit,Fun<a,b>> { return curry((id<Unit>().map_times(x)).then(snd<Unit,b>())) }
 
 export let compose_pair = function<a,b,c>() : Fun<Prod<Fun<a,b>,Fun<b,c>>,Fun<a,c>> {
   let f = fst<Fun<a,b>,Fun<b,c>>().map_times(id<a>()).then(apply_pair())
   let g = fst<Prod<Fun<a,b>,Fun<b,c>>, a>().then(snd())
   return curry(g.times(f).then(apply_pair()))
+}
+
+// a = a^1
+export let lazy_value = function<a>() : Fun<a,Fun<Unit,a>> {
+  return curry(fst<a,Unit>())
+}
+
+// a^1 = a
+export let eager_value = function<a>() : Fun<Fun<Unit,a>,a> {
+  return id<Fun<Unit,a>>().times(unit<Fun<Unit,a>>()).then(apply_pair())
+}
+
+// a*1 = a
+export let product_identity = function<a>() : Fun<Prod<a,Unit>,a> {
+  return fst<a,Unit>()
+}
+
+// a = a*1
+export let product_identity_inv = function<a>() : Fun<a,Prod<a,Unit>> {
+  return id<a>().times(unit<a>())
+}
+
+// a+0 = a
+export let sum_identity = function<a>() : Fun<Sum<a,Zero>,a> {
+  return id<a>().plus(absurd<a>())
+}
+
+// a = a+0
+export let sum_identity_inv = function<a>() : Fun<a,Sum<a,Zero>> {
+  return inl<a,Zero>()
+}
+
+export let plus_cat = function<a,b,c>() : Fun<Prod<Fun<a,c>,Fun<b,c>>, Fun<Sum<a,b>,c>> {
+  return fun2((f:Fun<a,c>,g:Fun<b,c>) => f.plus(g))
+}
+
+export let plus_par_cat = function<a,b,c,d>() : Fun<Prod<Fun<a,c>,Fun<b,d>>, Fun<Sum<a,b>,Sum<c,d>>> {
+  return fun2((f:Fun<a,c>,g:Fun<b,d>) => f.map_plus(g))
+}
+
+// a*a = a^2
+export let prod_to_fun = function<a>() : Fun<Prod<a,a>, Fun<Sum<Unit,Unit>,a>> {
+  return lazy_value<a>().map_times(lazy_value<a>()).then(plus_cat())
+}
+
+// a^2 = a*a
+export let prod_from_fun = function<a>() : Fun<Fun<Sum<Unit,Unit>,a>, Prod<a,a>> {
+  let f1 = id<Fun<Sum<Unit,Unit>,a>>().times(unit<Fun<Sum<Unit,Unit>,a>>().then(inl<Unit,Unit>())).then(apply_pair())
+  let f2 = id<Fun<Sum<Unit,Unit>,a>>().times(unit<Fun<Sum<Unit,Unit>,a>>().then(inr<Unit,Unit>())).then(apply_pair())
+  return f1.times(f2)
 }
