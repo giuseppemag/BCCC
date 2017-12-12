@@ -1,4 +1,4 @@
-import { Fun, Prod, Sum } from "./ccc";
+import { Fun, Prod, Sum, Unit } from "./ccc";
 import * as CCC from "./ccc";
 import * as State from "./state";
 export declare type CoRet<S, E, A> = CCC.Prod<A, S>;
@@ -22,9 +22,11 @@ export declare let mk_coroutine: <S, E, A>(run: Fun<S, Sum<E, Sum<Prod<Coroutine
 export declare let from_state: <s, e, a>(p: State.State<s, a>) => Coroutine<s, e, a>;
 export declare let co_run: <s, e, a>() => Fun<Coroutine<s, e, a>, Fun<s, Sum<e, Sum<Prod<Coroutine<s, e, a>, s>, Prod<a, s>>>>>;
 export declare let co_join: <S, E, A>(pp: Coroutine<S, E, Coroutine<S, E, A>>) => Coroutine<S, E, A>;
+export declare let co_get_state: <S, E>() => Coroutine<S, E, S>;
+export declare let co_set_state: <S, E>(s: S) => Coroutine<S, E, Unit>;
 export declare let co_unit: <S, E, A>(x: A) => Coroutine<S, E, A>;
 export declare let co_error: <S, E, A>(e: E) => Coroutine<S, E, A>;
-export declare let suspend: <S, E>() => Coroutine<S, E, CCC.Unit>;
+export declare let suspend: <S, E>() => Coroutine<S, E, Unit>;
 export declare type CoRef<s, e, a> = {
     get: Coroutine<s, e, a>;
     set: (_: a) => Coroutine<s, e, CCC.Unit>;

@@ -1,4 +1,4 @@
-import { Fun, Prod } from "./ccc";
+import { Fun, Prod, Unit } from "./ccc";
 import * as CCC from "./ccc";
 export interface St<S, A> extends CCC.Fun<S, CCC.Prod<A, S>> {
 }
@@ -12,6 +12,8 @@ export declare type State<S, A> = {
 export declare let mk_state: <S, A>(run: Fun<S, Prod<A, S>>) => State<S, A>;
 export declare let st_run: <s, a>() => Fun<State<s, a>, St<s, a>>;
 export declare let st_join: <S, A>(pp: State<S, State<S, A>>) => State<S, A>;
+export declare let st_get_state: <S>() => State<S, S>;
+export declare let st_set_state: <S>(s: S) => State<S, Unit>;
 export declare let st_unit: <S, A>(x: A) => State<S, A>;
 export interface StRef<s, a> {
     get: State<s, a>;

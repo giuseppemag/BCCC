@@ -1,4 +1,4 @@
-import {fun, Fun, Prod, apply, curry, id, constant, fst, snd, apply_pair} from "./ccc"
+import {fun, Fun, Prod, apply, curry, id, constant, fst, snd, apply_pair, Unit, unit} from "./ccc"
 import * as CCC from "./ccc"
 import * as Option from "./option"
 
@@ -36,6 +36,9 @@ export let st_join = function<S,A>(pp:State<S,State<S,A>>) : State<S,A> {
   let h = st_run<S,State<S,A>>().map_times(id<S>()).then(apply_pair()).then(g)
   return mk_state<S,A>(apply(curry(h), pp))
 }
+
+export let st_get_state = function<S>() : State<S,S> { return mk_state<S,S>(id<S>().times(id<S>())) }
+export let st_set_state = function<S>(s:S) : State<S,Unit> { return mk_state<S,Unit>(unit<S>().times(constant<S,S>(s))) }
 
 export let st_unit = function<S,A>(x:A) : State<S,A> { return mk_state<S,A>(constant<S,A>(x).times(id<S>())) }
 

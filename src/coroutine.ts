@@ -1,4 +1,4 @@
-import {fun, Fun, Prod, Sum, apply, apply_pair, curry, id, inl, inr, constant, fst, snd, swap_prod} from "./ccc"
+import {fun, Fun, Prod, Sum, apply, apply_pair, curry, id, inl, inr, constant, fst, snd, swap_prod, Unit} from "./ccc"
 import * as CCC from "./ccc"
 import * as State from "./state"
 
@@ -77,6 +77,9 @@ export let co_join = function<S,E,A>(pp:Coroutine<S,E,Coroutine<S,E,A>>) : Corou
   let g = apply(curry(co_run<S,E,Coroutine<S,E,A>>().map_times(id<S>()).then(apply_pair()).then(f)), pp)
   return mk_coroutine<S,E,A>(g)
 }
+
+export let co_get_state = function<S,E>() : Coroutine<S,E,S> { return from_state(State.st_get_state<S>()) }
+export let co_set_state = function<S,E>(s:S) : Coroutine<S,E,Unit> { return from_state(State.st_set_state<S>(s)) }
 
 export let co_unit = function<S,E,A>(x:A) : Coroutine<S,E,A> { return mk_coroutine<S,E,A>(
   no_error<S,E,A>().after(result<S,E,A>()).after(constant<S,A>(x).times(id<S>()))) }

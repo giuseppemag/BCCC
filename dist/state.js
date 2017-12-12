@@ -25,6 +25,8 @@ exports.st_join = function (pp) {
     var h = exports.st_run().map_times(ccc_1.id()).then(ccc_1.apply_pair()).then(g);
     return exports.mk_state(ccc_1.apply(ccc_1.curry(h), pp));
 };
+exports.st_get_state = function () { return exports.mk_state(ccc_1.id().times(ccc_1.id())); };
+exports.st_set_state = function (s) { return exports.mk_state(ccc_1.unit().times(ccc_1.constant(s))); };
 exports.st_unit = function (x) { return exports.mk_state(ccc_1.constant(x).times(ccc_1.id())); };
 // export let incr : <S>(_:StRef<S, number>) => State<S,number> = x =>
 //   x.get.then(x_v =>

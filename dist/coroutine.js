@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var ccc_1 = require("./ccc");
 var CCC = require("./ccc");
+var State = require("./state");
 exports.error = function () { return ccc_1.inl(); };
 exports.no_error = function () { return ccc_1.inr(); };
 exports.continuation = function () { return ccc_1.inl(); };
@@ -41,6 +42,8 @@ exports.co_join = function (pp) {
     var g = ccc_1.apply(ccc_1.curry(exports.co_run().map_times(ccc_1.id()).then(ccc_1.apply_pair()).then(f)), pp);
     return exports.mk_coroutine(g);
 };
+exports.co_get_state = function () { return exports.from_state(State.st_get_state()); };
+exports.co_set_state = function (s) { return exports.from_state(State.st_set_state(s)); };
 exports.co_unit = function (x) {
     return exports.mk_coroutine(exports.no_error().after(exports.result()).after(ccc_1.constant(x).times(ccc_1.id())));
 };
