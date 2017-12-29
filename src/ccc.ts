@@ -10,12 +10,16 @@ export let unit = <a>() : Fun<a,Unit> => fun(x => ({}))
 
 export type Sum<a,b> = { kind:"left", value:a } | { kind:"right", value:b }
 let plus = <c,a,b>(f:(_:a) => c, g:(_:b) => c) => (x:Sum<a,b>) => x.kind == "left" ? f(x.value) : g(x.value)
-let plus_par = <a,b,c,d>(f:(_:a) => c, g:(_:b) => d) => (x:Sum<a,b>) : Sum<c,d> => x.kind == "left" ? inl<c,d>().f(f(x.value)) : inr<c,d>().f(g(x.value))
+let plus_par = function<a,b,c,d>(f:Fun<a,b>, g:Fun<c,d>) : Fun<Sum<a,c>,Sum<b,d>> {
+  return (f.then(inl<b,d>())).plus((g.then(inr<b,d>())))
+}
 
 export interface Prod<a,b> { fst:a, snd:b }
 // export let mk_pair = <a,b>(x:a) : (y:b) => Prod<a,b> => y => ({ fst:x, snd:y })
 let times = <c,a,b>(f:(_:c) => a, g:(_:c) => b) => (x:c) : Prod<a,b> => ({ fst:f(x), snd:g(x) })
-let times_par = <a,b,c,d>(f:(_:a) => c, g:(_:b) => d) => (x:Prod<a,b>) : Prod<c,d> => ({ fst:f(x.fst), snd:g(x.snd) })
+let times_par = function<a,b,c,d>(f:Fun<a,c>, g:Fun<b,d>) : Fun<Prod<a,b>,Prod<c,d>> {
+  return (fst<a,b>().then(f)).times(snd<a,b>().then(g))
+}
 
 export interface Fun<a,b> {
   f:(_:a) => b
@@ -36,9 +40,9 @@ export let fun = <a,b>(f:(_:a) => b) : Fun<a,b> => ({
     after: function<c>(this:Fun<a,b>, g:Fun<c,a>) : Fun<c,b> { return fun<c,b>((x) => this.f(g.f(x))) },
     then: function<c>(this:Fun<a,b>, g:Fun<b,c>) : Fun<a,c> { return fun<a,c>((x) => g.f(this.f(x))) },
     plus: function<c>(this:Fun<a,b>, g:Fun<c,b>) : Fun<Sum<a,c>, b> { return fun(plus(this.f, g.f)) },
-    map_plus: function<c,d>(this:Fun<a,b>, g:Fun<c,d>) : Fun<Sum<a,c>, Sum<b,d>> { return fun(plus_par(this.f, g.f)) },
+    map_plus: function<c,d>(this:Fun<a,b>, g:Fun<c,d>) : Fun<Sum<a,c>, Sum<b,d>> { return plus_par(this, g) },
     times: function<c>(this:Fun<a,b>, g:Fun<a,c>) : Fun<a, Prod<b,c>> { return fun(times(this.f, g.f)) },
-    map_times: function<c,d>(this:Fun<a,b>, g:Fun<c,d>) : Fun<Prod<a,c>, Prod<b,d>> { return fun(times_par(this.f, g.f)) },
+    map_times: function<c,d>(this:Fun<a,b>, g:Fun<c,d>) : Fun<Prod<a,c>, Prod<b,d>> { return times_par(this, g) },
     map_times_left: function<c>(this:Fun<a,b>) : Fun<Prod<a,c>, Prod<b,c>> { return apply(map_times_left<a,b,c>(), this) },
     map_times_right: function<c>(this:Fun<a,b>) : Fun<Prod<c,a>, Prod<c,b>> { return apply(map_times_right<a,b,c>(), this) },
     map_sum_left: function<c>(this:Fun<a,b>) : Fun<Sum<a,c>, Sum<b,c>> { return apply(map_sum_left<a,b,c>(), this) },
@@ -55,6 +59,9 @@ export let apply_pair = function<a,b>() : Fun<Prod<Fun<a,b>, a>,b> { return fun(
 export let curry = function<a,b,c>(f:Fun<Prod<a,b>,c>) : Fun<a,Fun<b,c>> { return fun(a => fun(b => f.f({ fst:a, snd:b }))) }
 
 export let uncurry = function<a,b,c>(f:Fun<a,Fun<b,c>>) : Fun<Prod<a,b>,c> {
+  let j1:Fun<Prod<Prod<Fun<a,Fun<b,c>>,a>,b>,c> = apply_pair<a, Fun<b,c>>().map_times(id<b>()).then(apply_pair())
+  let conv = ((fst<Fun<a,Fun<b,c>>,Prod<a,b>>().times(snd<Fun<a,Fun<b,c>>,Prod<a,b>>().then(fst()))).times(snd<Fun<a,Fun<b,c>>,Prod<a,b>>().then(snd())))
+  let j : Fun<Prod<Fun<a,Fun<b,c>>,Prod<a,b>>, c> = conv.then(j1)
   let g = fst<Fun<a,Fun<b,c>>, Prod<a,b>>().times(snd<Fun<a,Fun<b,c>>, Prod<a,b>>().then(fst())).then(
           apply_pair()).times(snd<Fun<a,Fun<b,c>>, Prod<a,b>>().then(snd())).then(apply_pair())
   return apply(curry(g), f)
@@ -70,12 +77,22 @@ export let snd = function <a,b>() : Fun<Prod<a,b>,b> { return fun<Prod<a,b>,b>(p
 export let inl = function <a,b>() : Fun<a, Sum<a,b>> { return fun<a, Sum<a,b>>(x => ({ kind:"left", value:x })) }
 export let inr = function <a,b>() : Fun<b, Sum<a,b>> { return fun<b, Sum<a,b>>(x => ({ kind:"right", value:x })) }
 
+// some simple samples
+// let incr:Fun<number,number> = fun(x => x + 1)
+// let decr:Fun<number,number> = fun(x => x - 1)
+// let is_even:Fun<number,boolean> = fun(x => x % 2 == 0)
+// let not:Fun<boolean,boolean> = fun(x => !x)
+// let f:Fun<Sum<number,boolean>,Sum<boolean,boolean>> = is_even.map_plus(not)
+
+
 // a * (b+c) = a*b + a*c
 export let distribute_sum_prod = function<a,b,c>() : Fun<Prod<a, Sum<b,c>>, Sum<Prod<a,b>, Prod<a,c>>> {
-  return id<a>().map_times(
-    curry(inl<Prod<a,b>, Prod<a,c>>().after(snd<b, a>().times(fst<b, a>()))).plus(
-    curry(inr<Prod<a,b>, Prod<a,c>>().after(snd<c, a>().times(fst<c, a>()))))
-  ).then(apply_pair<a, Sum<Prod<a,b>,Prod<a,c>>>().after(swap_prod()))
+  let f1:Fun<Prod<b,a>,Sum<Prod<a,b>, Prod<a,c>>> = swap_prod<b,a>().then(inl())
+  let f = curry(f1)
+  let g1:Fun<Prod<c,a>,Sum<Prod<a,b>, Prod<a,c>>> = swap_prod<c,a>().then(inr())
+  let g = curry(g1)
+  let j = id<a>().map_times(f.plus(g)).then(swap_prod()).then(apply_pair())
+  return j
 }
 
 export let distribute_sum_prod_inv = function<a,b,c>() : Fun<Sum<Prod<a,b>, Prod<a,c>>, Prod<a, Sum<b,c>>> {
@@ -85,29 +102,31 @@ export let distribute_sum_prod_inv = function<a,b,c>() : Fun<Sum<Prod<a,b>, Prod
 
 // a^(b+c) = a^b * a^c
 export let distribute_exp_sum = function<a,b,c>() : Fun<Fun<Plus<a,b>, c>, Prod<Fun<a,c>, Fun<b,c>>> {
-  return curry(id<Fun<Plus<a,b>,c>>().map_times(inl<a,b>()).then(apply_pair())).times(
-         curry(id<Fun<Plus<a,b>,c>>().map_times(inr<a,b>()).then(apply_pair()))
-  )
+  let f1 : Fun<Prod<Fun<Plus<a,b>, c>, a>, c> = (id<Fun<Plus<a,b>, c>>().map_times(inl<a,b>())).then(apply_pair())
+  let f = curry(f1)
+  let g1 : Fun<Prod<Fun<Plus<a,b>, c>, b>, c> = (id<Fun<Plus<a,b>, c>>().map_times(inr<a,b>())).then(apply_pair())
+  let g = curry(g1)
+  let i = f.times(g)
+  return i
 }
 
 export let distribute_exp_sum_inv = function<a,b,c>() : Fun<Prod<Fun<a,c>, Fun<b,c>>, Fun<Plus<a,b>, c>> {
-  return curry(distribute_sum_prod<Prod<Fun<a,c>,Fun<b,c>>, a, b>().then(
-    apply_pair<a, c>().after(fst<Fun<a,c>,Fun<b,c>>().map_times(id<a>())).plus(
-    apply_pair<b, c>().after(snd<Fun<a,c>,Fun<b,c>>().map_times(id<b>())))))
+  let j3 : Fun<Sum<Prod<Fun<a,c>,a>, Prod<Fun<b,c>,b>>, c> =
+    apply_pair<a,c>().plus(apply_pair<b,c>())
+  let j2 : Fun<Sum<Prod<Prod<Fun<a,c>,Fun<b,c>>,a>, Prod<Prod<Fun<a,c>,Fun<b,c>>,b>>, Sum<Prod<Fun<a,c>,a>, Prod<Fun<b,c>,b>>> =
+    (fst<Fun<a,c>,Fun<b,c>>().map_times(id<a>())).map_plus(snd<Fun<a,c>,Fun<b,c>>().map_times(id<b>()))
+  let j1 : Fun<Prod<Prod<Fun<a,c>,Fun<b,c>>, Sum<a,b>>, Sum<Prod<Prod<Fun<a,c>,Fun<b,c>>,a>, Prod<Prod<Fun<a,c>,Fun<b,c>>,b>>> =
+    distribute_sum_prod<Prod<Fun<a,c>,Fun<b,c>>, a, b>()
+  let j = curry(j1.then(j2).then(j3))
+  return j
 }
 
 export let distribute_exp_prod = function<a,b,c>() : Fun<Fun<a, Fun<b,c>>, Fun<Prod<a,b>, c>> {
-  return curry(apply_pair<a, Fun<b,c>>().after(
-    fst<Fun<a, Fun<b,c>>, Prod<a,b>>().times(
-    fst<a,b>().after(snd<Fun<a, Fun<b,c>>, Prod<a,b>>()))
-  ).times(snd<a,b>().after(snd<Fun<a, Fun<b,c>>, Prod<a,b>>())).then(apply_pair()))
+  return fun(f => uncurry(f))
 }
 
 export let distribute_exp_prod_inv = function<a,b,c>() : Fun<Fun<Prod<a,b>, c>, Fun<a, Fun<b,c>>> {
-  let f = fst<Prod<Fun<Prod<a,b>, c>, a>, b>().then(fst())
-  let g = fst<Prod<Fun<Prod<a,b>, c>, a>, b>().then(snd())
-  let h = snd<Prod<Fun<Prod<a,b>, c>, a>, b>()
-  return curry(curry(f.times(g.times(h)).then(apply_pair())))
+  return fun(f => curry(f))
 }
 
 // a^0 = 1
@@ -119,15 +138,15 @@ export let power_of_zero_inv = function<a>() : Fun<Unit, Fun<Zero, a>> {
   return curry(absurd<a>().after(snd<Unit,Zero>()))
 }
 
-// a^1 = a
-// a*1 = 1*a = a
-// a+0 = 0+a = a
-// a*a = a^2
-
 // c^b^a = c^a^b
 export let swap_exp_args = function<a,b,c>() : Fun<Fun<a, Fun<b,c>>, Fun<b, Fun<a,c>>> {
-  let f = curry(id<Fun<Prod<a,b>, c>>().map_times(swap_prod<b,a>()).then(apply_pair()))
-  return distribute_exp_prod<a,b,c>().then(f).then(distribute_exp_prod_inv())
+  let j1 = id<Fun<a,Fun<b,c>>>().map_times(swap_prod<b,a>())
+  let j2 = distribute_exp_prod<a,b,c>().map_times(id<Prod<a,b>>())
+  let j3 = apply_pair<Prod<a,b>,c>()
+  let j = j1.then(j2).then(j3)
+  let i = curry(j).then(distribute_exp_prod_inv())
+
+  return i
 }
 
 // a*b = b*a
@@ -217,7 +236,10 @@ export let plus_par_cat = function<a,b,c,d>() : Fun<Prod<Fun<a,c>,Fun<b,d>>, Fun
 
 // a*a = a^2
 export let prod_to_fun = function<a>() : Fun<Prod<a,a>, Fun<Sum<Unit,Unit>,a>> {
-  return lazy_value<a>().map_times(lazy_value<a>()).then(plus_cat())
+  let j1:Fun<Sum<Prod<Prod<a,a>,Unit>,Prod<Prod<a,a>,Unit>>,a> = (fst<Prod<a,a>,Unit>().then(fst())).plus(fst<Prod<a,a>,Unit>().then(snd()))
+  let j :Fun<Prod<Prod<a,a>,Sum<Unit,Unit>>, a> = distribute_sum_prod<Prod<a,a>, Unit, Unit>().then(j1)
+  let i = curry(j)
+  return i
 }
 
 // a^2 = a*a
