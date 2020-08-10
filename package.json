@@ -13,10 +13,11 @@
   },
   "dependencies": {
     "@types/node": "^8.0.51",
-    "immutable": "^3.8.2",
-    "typescript": "^3.9.5"
+    "immutable": "^3.8.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "typescript": "^4.0.0-beta"
+  },
   "author": {
     "name": "Dr. Giuseppe Maggiore",
     "email": "giuseppemag@gmail.com"

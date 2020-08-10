@@ -1,26 +1,34 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var immutable_1 = require("immutable");
-var Fun = function (f) {
-    var _f = f;
-    _f.then = function (g) {
+var Exp = function (f) {
+    var f_exp = f;
+    f_exp.then = function (g) {
         var _this = this;
-        return Fun(function (a) { return g(_this(a)); });
+        return Exp(function (a) { return g(_this(a)); });
     };
-    return _f;
+    return f_exp;
 };
-var Nat = function (f) { return Fun(f); };
-var id = function () { return Nat(function (a) { return a; }); };
-var singleton = function () { return Nat(function (a) { return immutable_1.List().push(a); }); };
-var join = function () { return Nat(function (l) { return l.flatMap(function (x) { return x; }).toList(); }); };
-// functor
-// monad
-// interface Eta<a,f> extends Nat<a,f<a>> {
-//   (a:a) : f<a>,
-//   then<c>(g:Nat<f<a>,c>) : Nat<a,c>
+var id = function () { return Exp(function (a) { return a; }); };
+var BaseFunctorMaps = function () { return ({
+    Id: id(),
+    Array: Exp(function (f) { return Exp(function (as) { return as.map(f); }); }),
+    List: Exp(function (f) { return Exp(function (as) { return as.map(function (a) { return f(a); }).toList(); }); }),
+    Option: Exp(function (f) { return Exp(function (oa) { return oa.kind == "none" ? ({ kind: "none" }) : ({ kind: "some", value: f(oa.value) }); }); }),
+}); };
+var fmap = function (functor) { return function (f) {
+    return BaseFunctorMaps()[functor](f);
+}; };
+// interface Nat<f extends keyof BaseFunctors<{}>, g extends keyof BaseFunctors<{}>> {
+//   actual:<a>() => Exp<BaseFunctors<a>[f], BaseFunctors<a>[g]>,
+//   then:<h extends keyof BaseFunctors<{}>>(g:Nat<g,h>) => Nat<f, h>
 // }
-// interface Mu<a,f> extends Nat<f<f<a>>, f<a>> {
-//   (ffa:f<f<a>>) : f<a>,
-//   then<c>(g:Nat<f<a>,c>) : Nat<a,c>
-// }
-// const Eta = <a, Functor f>(f:Nat<a,f<a>>) : Nat<a,f<a>> => ...
+// const Nat = <f extends keyof BaseFunctors<{}>, g extends keyof BaseFunctors<{}>>() => <a>(actual:<a>() => Exp<BaseFunctors<a>[f], BaseFunctors<a>[g]>) : Nat<f,g> => ({
+//   actual,
+//   then:function<h extends keyof BaseFunctors<{}>>(this:Nat<f,g>, g:Nat<g,h>) : Nat<f, h> {
+//     return Nat<f,h>()(() => this.actual().then(g.actual()) as unknown as any)
+//   }
+// })
+// type MonadUnit<m extends keyof BaseFunctors<{}>, a> = Nat<"Id", m>
+// type MonadJoin<m extends keyof BaseFunctors<{}>, a> = Nat<Then<m,m>, m>
+// Monads = subset of keyof BaseFunctor
+// MonadInstance = { [m in Monads] : { unit:MonadUnit<m>, join:MonadJoin<m> } }
