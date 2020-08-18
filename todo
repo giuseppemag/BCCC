@@ -1,7 +1,4 @@
-[ ] functor composition at the type level
-[ ] functor composition at the map level
-[ ] nat trans over functors and their compositions
-[ ] nat trans composition with nat trans
+[ ] nat trans implementation
 [ ] nat trans composition with functors
-[ ] monad composition at the type level
-[ ] monad composition at the map level
+[ ] monads from functor compositions
+[ ] CCC's

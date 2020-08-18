@@ -9,26 +9,35 @@ var Exp = function (f) {
     return f_exp;
 };
 var id = function () { return Exp(function (a) { return a; }); };
+var FMap = function () { return function (fmap) {
+    var f_FMap = fmap;
+    f_FMap.fmap = fmap;
+    f_FMap.then = function (gmap) {
+        var _this = this;
+        return FMap()(function (f) { return gmap.fmap(_this.fmap(f)); });
+    },
+        f_FMap.after = function (gmap) {
+            var _this = this;
+            return FMap()(function (f) { return _this.fmap(gmap.fmap(f)); });
+        };
+    return f_FMap;
+}; };
 var BaseFunctorMaps = function () { return ({
     Id: id(),
     Array: Exp(function (f) { return Exp(function (as) { return as.map(f); }); }),
     List: Exp(function (f) { return Exp(function (as) { return as.map(function (a) { return f(a); }).toList(); }); }),
     Option: Exp(function (f) { return Exp(function (oa) { return oa.kind == "none" ? ({ kind: "none" }) : ({ kind: "some", value: f(oa.value) }); }); }),
 }); };
-var fmap = function (functor) { return function (f) {
-    return BaseFunctorMaps()[functor](f);
-}; };
-// interface Nat<f extends keyof BaseFunctors<{}>, g extends keyof BaseFunctors<{}>> {
-//   actual:<a>() => Exp<BaseFunctors<a>[f], BaseFunctors<a>[g]>,
-//   then:<h extends keyof BaseFunctors<{}>>(g:Nat<g,h>) => Nat<f, h>
-// }
-// const Nat = <f extends keyof BaseFunctors<{}>, g extends keyof BaseFunctors<{}>>() => <a>(actual:<a>() => Exp<BaseFunctors<a>[f], BaseFunctors<a>[g]>) : Nat<f,g> => ({
-//   actual,
-//   then:function<h extends keyof BaseFunctors<{}>>(this:Nat<f,g>, g:Nat<g,h>) : Nat<f, h> {
-//     return Nat<f,h>()(() => this.actual().then(g.actual()) as unknown as any)
-//   }
-// })
-// type MonadUnit<m extends keyof BaseFunctors<{}>, a> = Nat<"Id", m>
-// type MonadJoin<m extends keyof BaseFunctors<{}>, a> = Nat<Then<m,m>, m>
-// Monads = subset of keyof BaseFunctor
-// MonadInstance = { [m in Monads] : { unit:MonadUnit<m>, join:MonadJoin<m> } }
+var fmap = function (functor) {
+    return FMap()(function (f) { return BaseFunctorMaps()[functor](f); });
+};
+var f1 = fmap("Array")(Exp(function (x) { return x % 2 == 0; }));
+var f2 = fmap("Array").after(fmap("Array")).after(fmap("Array"))(Exp(function (x) { return x % 2 == 0; }));
+var some = function (x) { return ({ kind: "some", value: x }); };
+var none = function () { return ({ kind: "none" }); };
+var input = some([[some(1), some(2), some(3), none(), some(4)], [none(), some(5)]]);
+var f3 = fmap("Option").after(fmap("Array")).after(fmap("Array")).after(fmap("Option"))(Exp(function (x) { return x % 2 == 0; }));
+var test = f3(input);
+console.log("Hi!");
+var f = null;
+//# sourceMappingURL=main.js.map
